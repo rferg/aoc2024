@@ -17,7 +17,7 @@ raise "Input file #{input_path} does not exist." unless input_path.exist?
 raise "Input file #{input_path} is empty." if input_path.zero?
 
 lines = input_path.readlines(chomp: true)
-result = Solution.new(lines).solve
+result = Solution.new.solve(lines)
 raise "Result was nil." if result.nil?
 raise "Result was empty." if result.empty?
 

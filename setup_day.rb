@@ -25,7 +25,7 @@ solution_template = <<~RUBY
   require_relative "../solution_base"
 
   class Solution < SolutionBase
-    def solve
+    def solve(lines)
       # TODO
     end
   end
