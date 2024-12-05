@@ -9,7 +9,7 @@ day_dir = Paths.day_dir(day)
 
 raise "Day #{day_dir} directory does not exist. Try: ruby setup_day.rb #{day}" unless day_dir.directory?
 
-require_relative Paths.solution(day_dir, part)
+require_relative Paths.solution(day_dir)
 
 input_path = Paths.input(day_dir)
 
@@ -17,7 +17,12 @@ raise "Input file #{input_path} does not exist." unless input_path.exist?
 raise "Input file #{input_path} is empty." if input_path.zero?
 
 lines = input_path.readlines(chomp: true)
-result = Solution.new.solve(lines)
+solution = Solution.new
+result = if part == 1
+          solution.part_one(lines)
+        else
+          solution.part_two(lines)
+        end
 raise "Result was nil." if result.nil?
 raise "Result was empty." if result.empty?
 
