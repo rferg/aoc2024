@@ -18,12 +18,11 @@ raise "Input file #{input_path} is empty." if input_path.zero?
 
 lines = input_path.readlines(chomp: true)
 solution = Solution.new
-result = if part == 1
+result = (if part == 1
           solution.part_one(lines)
         else
           solution.part_two(lines)
-        end
-raise "Result was nil." if result.nil?
+        end).to_s
 raise "Result was empty." if result.empty?
 
 puts "Answer: #{result}"
