@@ -25,3 +25,5 @@ ruby solve.rb 1 1
 ```
 
 This will find and run the solution for Day 1 Part 1 and copy the return value of `Solution#part_one` to the clipboard.
+
+_Note that `input` files are gitignored, so you will need to supply these if you clone/fork the repo._
