@@ -4,12 +4,28 @@
 class Solution
   def part_one(lines)
     rules, updates = parse(lines)
-    updates.select { |u| u.valid?(u, rules) }
+    updates.select { |u| valid?(u, rules) }
            .sum { |u| u[u.length / 2] }
   end
   
   def part_two(lines)
-    # TODO
+    rules, updates = parse(lines)
+    updates.reject { |u| valid?(u, rules) }
+           .map { |u| correct(u, rules) }
+           .sum { |u| u[u.length / 2] }
+
+  end
+
+  def correct(u, rules)
+    u.sort do |a, b|
+      if rules[b].nil?
+        0
+      elsif rules[b].include?(a)
+        -1
+      else
+        1
+      end
+    end
   end
 
   def valid?(u, rules)
