@@ -24,6 +24,15 @@ class Solution
       set_start
     end
 
+    def clone_with_obstacle_at(x, y)
+      coord = Coord.new(x, y)
+      return nil unless self[coord] == "."
+
+      dup_lines = lines.map(&:dup)
+      dup_lines[y][x] = "#"
+      Grid.new(dup_lines)
+    end
+
     def height = lines.length
     def width = lines.first.length
     
@@ -49,7 +58,9 @@ class Solution
 
     def run
       while (in_bounds(current))
-        path << current
+        return false if path[dir]&.include?(current)
+
+        (path[dir] ||= Set.new) << current
         next_coord = current + dir
         while(self[next_coord] == "#") do
           turn
@@ -57,6 +68,7 @@ class Solution
         end
         self.current = next_coord
       end
+      true
     end
 
     def turn
@@ -76,17 +88,28 @@ class Solution
     end
 
     def path
-      @path ||= []
+      @path ||= {}
     end
   end
 
   def part_one(lines)
     grid = Grid.new(lines)
     grid.run
-    grid.path.uniq.length
+    grid.path.values.flat_map(&:to_a).uniq.length
   end
   
   def part_two(lines)
-    # TODO
+    count = 0
+    grid = Grid.new(lines)
+    grid.height.times do |y|
+      grid.width.times do |x|
+        puts "#{x}, #{y}"
+        with_obstacle = grid.clone_with_obstacle_at(x, y)
+        next if with_obstacle.nil?
+
+        count += 1 unless with_obstacle.run
+      end
+    end
+    count
   end
 end
