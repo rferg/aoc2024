@@ -32,12 +32,14 @@ class Solution
       lines[coord.y][coord.x]
     end
 
-    def antipodes
-      @antipodes ||= antennae.values
-                             .map { |coords| coords.combination(2).map { |a, b| [b - (a - b), a + (a - b)] } }
-                             .flatten
-                             .select { |coord| in_bounds?(coord) }
-                             .uniq
+    def antinodes(&block)
+      raise "block required" unless block_given?
+
+      antennae.values
+              .map { |coords| coords.combination(2).map(&block) }
+              .flatten
+              .select { |coord| in_bounds?(coord) }
+              .uniq
     end
 
     def antennae
@@ -57,7 +59,7 @@ class Solution
   end
 
   def part_one(lines)
-    Grid.new(lines).antipodes.length
+    Grid.new(lines).antinodes { |a, b| [b - (a - b), a + (a - b)] }.length
   end
   
   def part_two(lines)
