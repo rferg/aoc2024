@@ -4,13 +4,9 @@
 class Solution
   class Grid
     Coord = Data.define(:x, :y) do
-      def -(other)
-        Coord.new(x - other.x, y - other.y)
-      end
-
-      def +(other)
-        Coord.new(x + other.x, y + other.y)
-      end
+      def -(other) = Coord.new(x - other.x, y - other.y)
+      def +(other) = Coord.new(x + other.x, y + other.y)
+      def *(n) = Coord.new(x * n, y * n)
     end
 
     attr_reader :lines
@@ -63,6 +59,11 @@ class Solution
   end
   
   def part_two(lines)
-    # TODO
+    grid = Grid.new(lines)
+    max_dim = [grid.height, grid.width].max
+    grid.antinodes do |a, b|
+      diff = a - b
+      max_dim.times.flat_map { |factor| [b - (diff * factor), a + (diff * factor)] }
+    end.length
   end
 end
