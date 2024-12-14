@@ -40,33 +40,30 @@ class Solution
       len, end_pos = len_end
       starts = end_pos - len
       current_pos = 0
-      while((nil_idx, non_nil_idx = next_free_chunk(current_pos, buffer)))
-        puts "starts #{starts}, nil_idx: #{nil_idx}, non_nil_idx: #{non_nil_idx}, current_pos: #{current_pos}"
-        break if starts < nil_idx
+      while(free_range = next_free_chunk(current_pos, buffer))
+        break if starts < free_range.begin
 
-        if (nil_idx - non_nil_idx) >= len
-          buffer[first_nil_index...(first_nil_index + len)] = Array.new(len, id)
+        if free_range.size >= len
+          buffer[free_range.begin...(free_range.begin + len)] = Array.new(len, id)
           buffer[(end_pos - len)...end_pos] = Array.new(len, nil)
           break
         end
 
-        current_pos = non_nil_idx
+        current_pos = free_range.end + 1
       end
     end
-
-    puts buffer.map { |x| x.nil? ? "." : x.to_s }.join
     buffer.length.times.sum { |i| buffer[i].nil? ? 0 : buffer[i] * i }
   end
 
   def next_free_chunk(start, buffer)
-    nil_idx = buffer[start..].find_index(nil)
+    nil_idx = buffer[start..].index(nil)&.+ start
     return nil if nil_idx.nil?
 
     non_nil_idx = nil_idx
-    while (buffer[non_nil_idx].nil?)
+    while (buffer[non_nil_idx].nil? && non_nil_idx <= buffer.length)
       non_nil_idx += 1
     end
     
-    [nil_idx, non_nil_idx]
+    nil_idx...non_nil_idx
   end
 end
