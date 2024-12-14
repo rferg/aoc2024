@@ -58,7 +58,26 @@ class Solution
   end
   
   def part_two(lines)
-    # TODO
+    grid = Grid.new(lines)
+    grid.zeros.sum { |c| rating(c, grid) }
+  end
+
+  def rating(start, grid)
+    count = 0
+    stack = [start]
+    while (current = stack.pop)
+      value = grid[current]&.to_i
+      next if value.nil?
+
+      if value == 9
+        count += 1
+        next
+      end
+
+      stack += grid.all_orthogonal(current)
+                   .select { |c| grid[c]&.to_i == value + 1 }
+    end
+    count
   end
 
   def reachable_nines_from(start, grid)
