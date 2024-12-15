@@ -3,8 +3,6 @@
 # Day 10
 class Solution
   class Grid
-    include Enumerable
-
     Coord = Data.define(:x, :y) do
       def +(other) = Coord.new(x + other.x, y + other.y)
       def all_orthogonal
