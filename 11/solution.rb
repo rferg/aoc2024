@@ -3,30 +3,34 @@
 # Day 11
 class Solution
   def part_one(lines)
-    nums = lines.first.split(' ').map(&:to_i)
-    25.times do
-      nums = blink(nums)
-    end
-    nums.length
+    map = {}
+    cache = {}
+    nums = numbers(lines)
+    nums.length + nums.sum { |n| blink(n, 25, map, cache) }
   end
   
   def part_two(lines)
-    # TODO
+    map = {}
+    cache = {}
+    nums = numbers(lines)
+    nums.length + nums.sum { |n| blink(n, 75, map, cache) }
   end
 
-  def blink(nums)
-    result = []
-    nums.each do |n|
-      if n.zero?
-        result << 1
-      elsif (s = n.to_s).length.even?
-        half = s.length / 2
-        result << s[...half].to_i
-        result << s[half..].to_i
-      else
-        result << (n * 2024)
-      end
-    end
-    result
+  def blink(n, iter, map, cache)
+    return 0 if iter.zero?
+    return cache[[n, iter]] unless cache[[n, iter]].nil?
+
+    value = (map[n] ||= if n.zero?
+                          [1]
+                        elsif (s = n.to_s).length.even?
+                          [s[...s.length / 2].to_i, s[s.length / 2..].to_i]
+                        else
+                          [n * 2024]
+                        end)
+    cache[[n, iter]] ||= (value.length - 1) + value.sum { |m| blink(m, iter - 1, map, cache) }
+  end
+
+  def numbers(lines)
+    lines.first.split(' ').map(&:to_i)
   end
 end
