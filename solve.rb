@@ -27,7 +27,7 @@ raise "Result was empty." if result.empty?
 
 puts "Answer: #{result}"
 
-unless (/darwin/ =~ RUBY_PLATFORM).nil?
+if /darwin/ =~ RUBY_PLATFORM
   IO.popen("pbcopy", "w") { |pipe| pipe.puts result.to_s }
 
   puts "Copied to clipboard."
