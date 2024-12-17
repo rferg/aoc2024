@@ -4,40 +4,46 @@
 class Solution
   
   Vec = Struct.new(:x, :y) do
-    def self.zero = new(0, 0)
-      
-    def +(other) = Vec.new(x + other.x, y + other.y)
-    def *(n) = Vec.new(x * n, y * n)
-    def ==(other) = other.x == x && other.y == y    
+    def self.zero = new(0, 0)   
   end
 
   Machine = Struct.new(:a, :b, :prize) do
     def self.zero = new(Vec.zero, Vec.zero, Vec.zero)
       
-    def solved?(a_times, b_times)
-      ((a * a_times) + (b * b_times)) == prize
+    def solved?
+      (a_times % 1).zero? && (b_times % 1).zero?
+    end
+
+    def a_times
+      @a_times ||= (b.y * prize.x - b.x * prize.y) / (b.y * a.x - b.x * a.y).to_f
+    end
+
+    def b_times
+      @b_times ||= (prize.y - a.y * a_times) / b.y.to_f
     end
   end
 
   def part_one(lines)
-    # dumb brute force check
-    max = 100
     parse(lines).sum do |machine|
-      min_cost = 0
-      max.times do |a|
-        max.times do |b|
-          next unless machine.solved?(a, b)
-            
-          solve_cost = a * 3 + b
-          min_cost = solve_cost if min_cost.zero? || solve_cost < min_cost
-        end
+      if machine.solved?
+        (machine.a_times * 3 + machine.b_times).to_i
+      else
+        0
       end
-      min_cost
     end
   end
   
   def part_two(lines)
-    # TODO
+    translation = 10000000000000
+    parse(lines).sum do |machine|
+      machine.prize.x += translation
+      machine.prize.y += translation
+      if machine.solved?
+        (machine.a_times * 3 + machine.b_times).to_i
+      else
+        0
+      end
+    end
   end
 
   def parse(lines)
