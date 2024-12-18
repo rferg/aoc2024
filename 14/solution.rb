@@ -26,15 +26,44 @@ class Solution
   DIM_VEC = Vec.new(W, H)
 
   class Robot
-    attr_reader :pos, :movement
+    attr_reader :current, :movement
 
     def initialize(pos, movement)
-      @pos = pos
+      @current = pos
       @movement = movement
     end
 
     def move(seconds)
-      (pos + (movement * seconds)) % DIM_VEC
+      self.current = (current + (movement * seconds)) % DIM_VEC
+    end
+
+    private
+
+    attr_writer :current
+  end
+
+  class Swarm
+    attr_reader :robots
+
+    def initialize(robots)
+      @robots = robots
+    end
+
+    def move(seconds)
+      robots.each { _1.move(seconds) }
+    end
+
+    def to_s
+      x_index = robots.map(&:current).group_by(&:x).transform_values { |vs| Set.new(vs.map(&:y)) }
+      H.times.map do |y|
+        W.times.map do |x|
+          if x_index[x]&.include?(y)
+            "X"
+          else
+            "."
+          end
+        end.join
+      end.join("\n")
     end
   end
 
@@ -49,7 +78,18 @@ class Solution
   end
   
   def part_two(lines)
-    # TODO
+    swarm = Swarm.new(parse(lines))
+    s = 10000.times.map do |i|
+      puts "#{i + 1}"
+      swarm.move(1)
+      [
+        "=" * W,
+        "#{i + 1}",
+        "",
+        swarm.to_s
+      ].join("\n")
+    end.join("\n")
+    File.write("14/frames", s)
   end
 
   def parse(lines)
