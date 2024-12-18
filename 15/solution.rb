@@ -16,6 +16,13 @@ class Solution
       "^" => Coord.new(0, -1)
     }.freeze
 
+    OPP_DIRS = {
+      DIRS["<"] => DIRS[">"],
+      DIRS[">"] => DIRS["<"],
+      DIRS["v"] => DIRS["^"],
+      DIRS["^"] => DIRS["v"]
+    }.freeze
+
     attr_reader :lines
 
     def initialize(lines)
@@ -39,17 +46,7 @@ class Solution
       if open?(target)
         move_robot(target)      
       elsif box?(target)
-        current = target
-        boxes = []
-        while (box?(current))
-          boxes << current
-          current += dir
-        end
-
-        if open?(current)
-          self[current] = "O"
-          move_robot(target)
-        end
+        move_box(target, dir)
       end
     end
 
@@ -91,6 +88,20 @@ class Solution
       self[to] = "@"
       self.robot = to
     end
+
+    def move_box(target, dir)
+      current = target
+      boxes = []
+      while (box?(current))
+        boxes << current
+        current += dir
+      end
+
+      if open?(current)
+        self[current] = "O"
+        move_robot(target)
+      end
+    end
     
     def in_bounds?(coord)
       coord.x >= 0 && coord.y >= 0 && coord.x < width && coord.y < height
@@ -99,14 +110,76 @@ class Solution
     attr_accessor :robot
   end
 
+  class DoubleGrid < Grid    
+    def initialize(lines)
+      super(double_lines(lines))
+    end
+
+    def box_lefts
+      select { |coord| self[coord] == "[" }
+    end
+
+    private
+
+    def double_lines(lines)
+      lines.map do |line|
+        line.chars.map do |c|
+          if c == "O"
+            "[]"
+          elsif c == "#"
+            "##"
+          elsif c == "."
+            ".."
+          elsif c == "@"
+            "@."
+          else
+            c
+          end
+        end.join
+      end
+    end
+
+    def box?(coord) = self[coord] == "[" || self[coord] == "]"
+    
+    def move_box(target, dir)
+      boxes = Set.new
+      queue = [target]
+      surround = Set.new
+      while (current = queue.pop)
+        next if boxes.include?(current) || surround.include?(current)
+
+        if box?(current)
+          boxes << current
+          queue.unshift(current + dir)
+          if self[current] == "["
+            queue.unshift(current + DIR[">"])
+          else
+            queue.unshift(current + DIR["<"])
+          end
+        else
+          surround << current
+        end
+      end
+
+      if surround.all? { |coord| open?(coord) }
+        
+        move_robot(target)
+      end
+    end
+  end
+
   def part_one(lines)
-    grid, moves = parse(lines)
+    grid_lines, moves = parse(lines)
+    grid = Grid.new(grid_lines)
     moves.each { |dir| grid.move(dir) }
     grid.boxes.sum { |coord| (100 * coord.y) + coord.x }
   end
   
   def part_two(lines)
-    # TODO
+    grid_lines, moves = parse(lines)
+    grid = DoubleGrid.new(grid_lines)
+    moves.each { |dir| grid.move(dir) }
+    grid.box_lefts.sum { |coord| (100 * coord.y) + coord.x }
   end
 
   def parse(lines)
@@ -122,6 +195,6 @@ class Solution
         grid_lines << line
       end
     end
-    [Grid.new(grid_lines), moves]
+    [grid_lines, moves]
   end
 end
