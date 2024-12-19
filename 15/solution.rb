@@ -2,26 +2,19 @@
 
 # Day 15
 class Solution
+  Coord = Data.define(:x, :y) do
+    def +(other) = Coord.new(x + other.x, y + other.y)
+  end
+
+  DIRS = {
+    "<" => Coord.new(-1, 0),
+    ">" => Coord.new(1, 0),
+    "v" => Coord.new(0, 1),
+    "^" => Coord.new(0, -1)
+  }.freeze
+
   class Grid
     include Enumerable
-
-    Coord = Data.define(:x, :y) do
-      def +(other) = Coord.new(x + other.x, y + other.y)
-    end
-
-    DIRS = {
-      "<" => Coord.new(-1, 0),
-      ">" => Coord.new(1, 0),
-      "v" => Coord.new(0, 1),
-      "^" => Coord.new(0, -1)
-    }.freeze
-
-    OPP_DIRS = {
-      DIRS["<"] => DIRS[">"],
-      DIRS[">"] => DIRS["<"],
-      DIRS["v"] => DIRS["^"],
-      DIRS["^"] => DIRS["v"]
-    }.freeze
 
     attr_reader :lines
 
@@ -151,18 +144,18 @@ class Solution
         if box?(current)
           boxes << current
           queue.unshift(current + dir)
-          if self[current] == "["
-            queue.unshift(current + DIR[">"])
-          else
-            queue.unshift(current + DIR["<"])
-          end
+          other_dir = self[current] == "[" ? DIRS[">"] : DIRS["<"]
+          queue.unshift(current + other_dir)
         else
           surround << current
         end
       end
 
       if surround.all? { |coord| open?(coord) }
-        
+        boxes.map { |from| [from, from + dir, self[from]] }
+             .each do |from, to, char|
+               self[to] = char
+             end
         move_robot(target)
       end
     end
@@ -178,7 +171,14 @@ class Solution
   def part_two(lines)
     grid_lines, moves = parse(lines)
     grid = DoubleGrid.new(grid_lines)
-    moves.each { |dir| grid.move(dir) }
+    puts grid.to_s
+    moves.each do |dir|
+      grid.move(dir)
+      puts "======="
+      puts dir
+      puts "\n"
+      puts grid.to_s
+    end
     grid.box_lefts.sum { |coord| (100 * coord.y) + coord.x }
   end
 
