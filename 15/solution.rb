@@ -145,17 +145,16 @@ class Solution
           boxes << current
           queue.unshift(current + dir)
           other_dir = self[current] == "[" ? DIRS[">"] : DIRS["<"]
-          queue.unshift(current + other_dir)
+          queue.unshift(current + other_dir) unless other_dir == dir
         else
           surround << current
         end
       end
 
       if surround.all? { |coord| open?(coord) }
-        boxes.map { |from| [from, from + dir, self[from]] }
-             .each do |from, to, char|
-               self[to] = char
-             end
+        new_boxes = boxes.map { [_1 + dir, self[_1]] }
+        (boxes - new_boxes.map(&:first)).each { self[_1] = "." }
+        new_boxes.each { |coord, char| self[coord] = char }
         move_robot(target)
       end
     end
@@ -171,14 +170,7 @@ class Solution
   def part_two(lines)
     grid_lines, moves = parse(lines)
     grid = DoubleGrid.new(grid_lines)
-    puts grid.to_s
-    moves.each do |dir|
-      grid.move(dir)
-      puts "======="
-      puts dir
-      puts "\n"
-      puts grid.to_s
-    end
+    moves.each { |dir| grid.move(dir) }
     grid.box_lefts.sum { |coord| (100 * coord.y) + coord.x }
   end
 
