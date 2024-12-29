@@ -1,5 +1,7 @@
-require_relative 'utils/test'
-ARGV.each do |path|
+require_relative 'test/test'
+
+pattern = ARGV.first || "test/**/*_test.rb"
+Dir[pattern].each do |path|
   require_relative path
 end
 
@@ -14,6 +16,8 @@ Result = Data.define(:klass, :method, :error) do
     ].join("\n")
   end
 end
+
+raise "No tests found at #{pattern}." if Test.subclasses.empty?
 
 results = []
 Test.subclasses.each do |test_class|

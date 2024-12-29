@@ -56,6 +56,6 @@ class PriorityQueue
   end
 
   def less?(i, j)
-    comparer.call(heap[i], heap[j]) == -1
+    comparer.call(heap[i], heap[j]).negative?
   end
 end

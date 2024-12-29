@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'priority_queue'
+require_relative '../utils/priority_queue'
 require_relative 'test'
 
 class PriorityQueueTest < Test
